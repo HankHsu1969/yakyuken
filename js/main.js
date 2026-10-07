@@ -83,8 +83,9 @@ function renderHud() {
   $('#roundLabel').textContent = `第 ${S.round} 回戰`;
 }
 
-function chant(text, cls = '') {
-  $('#chant').innerHTML = text ? `<span class="w ${cls}">${text}</span>` : '';
+// 喊聲；sub 是下方的中文說明
+function chant(text, cls = '', sub = '') {
+  $('#chant').innerHTML = text ? `<span class="w ${cls}">${text}</span>${sub ? `<div class="sub">${sub}</div>` : ''}` : '';
 }
 
 function banner(text, cls) {
@@ -312,12 +313,13 @@ async function throwRound(quick, retry = false) {
     capT = snd.phraseChant(tc, bus);
     cue(tc, () => { chant('アウト！'); pulse(); hideTelop(); });
     cue(tc + 2 * B, () => { chant('セーフ！'); pulse(); });
-    cue(tc + 4 * B, () => { chant('よよいの'); pulse(); camArm(true); });
+    cue(tc + 4 * B, () => { chant('よよいの', '', '準備出拳…'); pulse(); camArm(true); });
   } else {
     capT = snd.phraseAiko(t0, bus);
-    cue(t0, () => { chant('あいこで'); pulse(); camArm(true); });
+    cue(t0, () => { chant('あいこで', '', '平手！再出一次拳'); pulse(); camArm(true); });
   }
-  cue(capT, () => { chant(quick ? 'しょっ！' : 'よいっ！', 'big'); pulse(); });
+  const how = useCam ? '對著鏡頭出拳！' : '按按鈕出拳！';
+  cue(capT, () => { chant(quick ? 'しょっ！' : 'よいっ！', 'big', `👊 現在${how}`); pulse(); });
 
   const capWall = snd.wallTime(capT);
   const you = await waitForThrow(openWall, capWall);

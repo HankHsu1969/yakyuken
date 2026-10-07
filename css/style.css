@@ -181,6 +181,14 @@ body { display: grid; place-items: center; }
 #chant .w { display: inline-block; animation: pop .32s cubic-bezier(.2, 1.7, .4, 1) both; }
 #chant .w.big { color: #fff; font-size: 1.25em; animation: popBig .38s cubic-bezier(.2, 1.9, .4, 1) both; }
 #chant .w.small { font-size: .55em; color: var(--gold); }
+#chant .sub {
+  display: block; width: max-content; margin: .6rem auto 0; padding: .3rem 2rem;
+  font-family: 'Noto Sans TC', sans-serif; font-weight: 900; font-size: 3rem; line-height: 1.3;
+  color: #fff; text-shadow: none; background: rgba(160, 0, 16, .9);
+  border: .3rem solid var(--gold); border-radius: 99px; box-shadow: 0 .5rem 1.2rem rgba(0, 0, 0, .5);
+  animation: subIn .3s cubic-bezier(.2, 1.7, .4, 1) .08s both;
+}
+@keyframes subIn { from { transform: translateY(1rem) scale(.6); opacity: 0; } to { transform: none; opacity: 1; } }
 @keyframes pop { from { transform: scale(2.4) rotate(-10deg); opacity: 0; } to { transform: scale(1) rotate(-3deg); opacity: 1; } }
 @keyframes popBig { from { transform: scale(3.2) rotate(12deg); opacity: 0; } to { transform: scale(1) rotate(2deg); opacity: 1; } }
 
@@ -373,6 +381,7 @@ kbd {
 
   #bubble { left: 55%; top: 16%; max-width: 18rem; font-size: 1.45rem; padding: .8rem 1rem; border-radius: 1.4rem; }
   #chant { top: 40%; font-size: 7.2rem; }
+  #chant .sub { font-size: 2.3rem; padding: .3rem 1.4rem; }
   #banner { top: calc(var(--scene-h) - 13rem); font-size: 9.5rem; }
   #telop {
     bottom: auto; top: calc(var(--scene-h) - 5rem); white-space: normal; text-align: center;
