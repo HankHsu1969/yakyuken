@@ -34,16 +34,17 @@ html, body {
 
 body { display: grid; place-items: center; }
 
+/* 舞台填滿整個視窗（電腦 1920×1080 全螢幕剛好 16:9；視窗比例不同時圖片會裁切邊緣） */
 #app {
   position: relative;
-  width: min(100vw, calc(100vh * 16 / 9));
-  aspect-ratio: 16 / 9;
+  width: 100vw;
+  height: 100vh;
   overflow: hidden;
   background: #300;
   user-select: none;
   -webkit-user-select: none;
 }
-@supports (height: 1dvh) { #app { width: min(100vw, calc(100dvh * 16 / 9)); } }
+@supports (height: 1dvh) { #app { height: 100dvh; } }
 
 /* 粗外框字（昭和綜藝字幕風） */
 #chant, #banner, #roundLabel, .endTitle, #jajan, .handcard .who {
@@ -72,7 +73,7 @@ body { display: grid; place-items: center; }
 
 .bg {
   position: absolute; inset: 0; width: 100%; height: 100%;
-  object-fit: cover; object-position: var(--focus, 52%) 50%;
+  object-fit: cover; object-position: var(--focus, 52%) 20%;
   opacity: 0; transition: opacity .45s ease;
 }
 .bg.show { opacity: 1; }
@@ -96,11 +97,11 @@ body { display: grid; place-items: center; }
   box-shadow: 0 .4rem 1.2rem rgba(0, 0, 0, .45);
   min-width: 20rem;
 }
-#hud .her { text-align: right; }
+#hud .you { text-align: right; }
 #hud .name { font-family: 'Dela Gothic One', sans-serif; font-size: 1.8rem; color: var(--gold); letter-spacing: .1em; white-space: nowrap; }
 #hud .name small { font-size: 1.1rem; color: var(--cream); margin-left: .4em; }
 #hud .items { display: flex; gap: .6rem; margin-top: .3rem; font-size: 2.5rem; }
-#hud .her .items { justify-content: flex-end; }
+#hud .you .items { justify-content: flex-end; }
 .item { position: relative; display: inline-block; transition: .4s; }
 .item.gone { filter: grayscale(1) brightness(.6); opacity: .35; }
 .item.gone::after {
@@ -120,16 +121,16 @@ body { display: grid; place-items: center; }
 }
 
 /* ---------- 出拳卡 ---------- */
-/* 你 = 藍色、美咲 = 紅色，手的圖都朝向畫面中間 */
+/* 你 = 右邊藍色、美咲 = 左邊紅色，手的圖都朝向畫面中間 */
 .handcard {
   --c: #1f6fe0; --c2: #0b3c8c;
   position: absolute; top: 17%; width: 19rem; z-index: 12;
   text-align: center; pointer-events: none;
-  opacity: 0; transform: scale(.3) rotate(-20deg);
+  opacity: 0; transform: scale(.3) rotate(20deg);
   transition: opacity .2s, transform .35s cubic-bezier(.2, 1.8, .4, 1);
 }
-.handcard.you { left: 4%; }
-.handcard.her { right: 4%; --c: #e0142a; --c2: #7a0710; transform: scale(.3) rotate(20deg); }
+.handcard.you { right: 4%; }
+.handcard.her { left: 4%; --c: #e0142a; --c2: #7a0710; transform: scale(.3) rotate(-20deg); }
 .handcard.show { opacity: 1; transform: none; }
 .handcard .who {
   display: inline-block; font-family: 'Dela Gothic One', sans-serif; font-size: 2.4rem; color: #fff;
@@ -143,7 +144,7 @@ body { display: grid; place-items: center; }
   overflow: hidden;
 }
 .handcard .hand img { position: absolute; inset: 6%; width: 88%; height: 88%; object-fit: contain; }
-.handcard.her .hand img { transform: scaleX(-1); }
+.handcard.you .hand img { transform: scaleX(-1); }
 .handcard .lbl {
   display: inline-block; background: var(--c); border: .3rem solid var(--gold); color: #fff;
   border-radius: 1rem; padding: .1rem 1.6rem .2rem; font-weight: 900; font-size: 3.2rem; line-height: 1.2; white-space: nowrap;
@@ -267,7 +268,7 @@ body { display: grid; place-items: center; }
 .screen { position: absolute; inset: 0; z-index: 20; display: none; }
 .mode-title #titleScreen, .mode-setup #setupScreen, .mode-end #endScreen { display: block; }
 
-.titleArt, .titleArt img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.titleArt, .titleArt img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; }
 #titleScreen .titleButtons {
   position: absolute; left: 0; right: 0; bottom: 6%;
   display: flex; flex-direction: column; align-items: center; gap: 1rem;
@@ -348,12 +349,10 @@ kbd {
    ====================================================== */
 @media (orientation: portrait) {
   #app {
-    width: 100vw; height: 100vh; aspect-ratio: auto;
     background:
       radial-gradient(ellipse at 50% 0%, rgba(255, 190, 60, .25), transparent 60%),
       repeating-linear-gradient(90deg, #5a0710 0 3rem, #4a040c 3rem 6rem);
   }
-  @supports (height: 1dvh) { #app { width: 100vw; height: 100dvh; } }
   .mode-game { --scene-h: 58%; }
   .mode-game #scene { border-bottom: .35rem solid var(--gold); box-shadow: 0 .4rem 1.2rem rgba(0, 0, 0, .6); }
 
@@ -366,8 +365,8 @@ kbd {
 
   /* 出拳卡放舞台上半部、勝負字放下半部，兩者不重疊 */
   .handcard { top: calc(var(--scene-h) * .3); width: 16rem; }
-  .handcard.you { left: 1.5%; }
-  .handcard.her { right: 1.5%; }
+  .handcard.you { right: 1.5%; }
+  .handcard.her { left: 1.5%; }
   .handcard .who { font-size: 1.9rem; padding: .1rem 1.2rem; }
   .handcard .hand { width: 14rem; height: 14rem; border-width: .5rem; }
   .handcard .lbl { font-size: 2.6rem; padding: .1rem 1.2rem .2rem; }
@@ -390,7 +389,7 @@ kbd {
   }
   .mode-game #touchHands button { width: 9.5rem; height: auto; flex: 0 1 9.5rem; min-height: 0; border-radius: 2rem; }
   /* 沒開攝影機：舞台放大，按鈕貼近下方方便拇指按 */
-  .mode-game.nocam { --scene-h: 70%; }
+  .mode-game.nocam { --scene-h: calc(100% - 16rem - env(safe-area-inset-bottom, 0px)); }
   .mode-game.nocam #touchHands {
     left: 50%; right: auto; transform: translateX(-50%); top: auto;
     bottom: calc(3.5rem + env(safe-area-inset-bottom, 0px)); flex-direction: row; gap: 2rem;
@@ -418,6 +417,6 @@ kbd {
   .btn.big { font-size: 2.2rem; padding: .9rem 3.5rem; }
   .btn.small { font-size: 1.5rem; }
 
-  #toolbar { right: .8rem; bottom: auto; top: 6.6rem; flex-direction: column; }
+  #toolbar { right: .8rem; bottom: auto; top: 9rem; flex-direction: column; }
   .mode-title #toolbar, .mode-setup #toolbar { top: auto; bottom: .8rem; flex-direction: row; }
 }

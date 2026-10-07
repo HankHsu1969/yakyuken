@@ -43,7 +43,7 @@ let tracker = null;
 let useCam = false;
 let keyHand = null;
 let audioReady = null;
-const S = { herLost: 0, youLost: 0, round: 1, playing: false, endBus: null };
+const S = { herLost: 0, youLost: 0, round: 1, playing: false, endBus: null, resolvedAt: 0 };
 
 // ---------- 畫面小工具 ----------
 
@@ -294,11 +294,12 @@ function ensureAudio() {
 async function throwRound(quick, retry = false) {
   hideHands();
   hideBanner();
-  clearPicked();
+  // あいこ：上一拳揭曉之後點的都算（很多人一看到「あいこ！」就馬上出下一拳）
+  if (!quick) clearPicked();
   const bus = snd.phraseBus();
   const B = snd.B;
   const t0 = snd.now + 0.15;
-  const openWall = snd.wallTime(t0);
+  const openWall = quick ? S.resolvedAt : snd.wallTime(t0);
   let capT;
 
   if (!quick) {
@@ -323,7 +324,15 @@ async function throwRound(quick, retry = false) {
   camArm(false);
   hideTelop();
   clearPicked();
+  S.resolvedAt = performance.now();
 
+  if (!you && quick) {
+    // あいこ中沒出拳不算失誤，直接再喊一次「あいこで しょっ！」
+    chant('');
+    telop('あいこ！再出一次！');
+    await sleep(500);
+    return 'draw';
+  }
   if (!you) {
     chant('');
     banner('不算！', 'draw');
@@ -344,6 +353,7 @@ async function throwRound(quick, retry = false) {
 
   if (you === her) {
     banner('あいこ！', 'draw');
+    telop('あいこ！再出一次！');
     snd.jingleDraw();
     await sleep(750);
     hideBanner();
