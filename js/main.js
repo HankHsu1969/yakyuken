@@ -112,8 +112,8 @@ const hideBubble = () => $('#bubble').classList.remove('show');
 function showHand(who, g) {
   const card = $(who === 'you' ? '#handYou' : '#handHer');
   const info = HAND_INFO[g];
-  card.querySelector('.emoji').textContent = info.emoji;
-  card.querySelector('.lbl').textContent = `${info.jp}・${info.zh}`;
+  card.querySelector('.hand img').src = info.img;
+  card.querySelector('.lbl').innerHTML = `${info.zh}<small>${info.jp}</small>`;
   card.classList.remove('winner', 'loser');
   card.classList.add('show');
 }
@@ -208,16 +208,38 @@ function onHandUpdate(g, hasHand) {
   document.querySelectorAll('.gestureRow .g').forEach((el) => el.classList.toggle('on', el.dataset.g === g));
 }
 
-function readPlayerHand(capWall) {
-  const k = keyHand;
-  keyHand = null;
-  if (k && k.t >= capWall - 1000 && k.t <= capWall + 600) return k.g;
+// 出拳判定：按鈕 / 鍵盤從這回合開始到「よいっ！」後 THROW_LATE_MS 內按的都算（以最後一次為準）；
+// 攝影機則找「よいっ！」之後第一個維持 STABLE_MS 以上的手勢，最晚等到 THROW_LATE_MS。
+const THROW_LATE_MS = 1200;
+const STABLE_MS = 180;
+
+function readPlayerHand(openWall, capWall, final) {
+  if (keyHand && keyHand.t >= openWall) return keyHand.g;
   if (!useCam || !tracker) return null;
-  return tracker.sample(capWall + 30, capWall + 600) || tracker.sample(capWall - 400, capWall + 600);
+  const g = tracker.stable(capWall + 50, STABLE_MS);
+  if (g || !final) return g;
+  return tracker.sample(capWall - 600, capWall + THROW_LATE_MS);
+}
+
+async function waitForThrow(openWall, capWall) {
+  await sleepUntil(capWall + 150);
+  const deadline = capWall + THROW_LATE_MS;
+  for (;;) {
+    const final = performance.now() >= deadline;
+    const g = readPlayerHand(openWall, capWall, final);
+    if (g || final) return g;
+    await sleep(40);
+  }
+}
+
+function clearPicked() {
+  keyHand = null;
+  for (const b of document.querySelectorAll('#touchHands button')) b.classList.remove('picked');
 }
 
 function manualHand(g) {
   keyHand = { g, t: performance.now() };
+  for (const b of document.querySelectorAll('#touchHands button')) b.classList.toggle('picked', b.dataset.g === g);
   const btn = document.querySelector(`#touchHands [data-g="${g}"]`);
   retrigger(btn, 'on');
   setTimeout(() => btn.classList.remove('on'), 250);
@@ -272,9 +294,11 @@ function ensureAudio() {
 async function throwRound(quick, retry = false) {
   hideHands();
   hideBanner();
+  clearPicked();
   const bus = snd.phraseBus();
   const B = snd.B;
   const t0 = snd.now + 0.15;
+  const openWall = snd.wallTime(t0);
   let capT;
 
   if (!quick) {
@@ -295,11 +319,11 @@ async function throwRound(quick, retry = false) {
   cue(capT, () => { chant(quick ? 'しょっ！' : 'よいっ！', 'big'); pulse(); });
 
   const capWall = snd.wallTime(capT);
-  await sleepUntil(capWall + 600);
+  const you = await waitForThrow(openWall, capWall);
   camArm(false);
   hideTelop();
+  clearPicked();
 
-  const you = readPlayerHand(capWall);
   if (!you) {
     chant('');
     banner('不算！', 'draw');
@@ -486,4 +510,4 @@ $('#btnRetry').onclick = startGame;
 $('#btnMute').onclick = toggleMute;
 $('#btnFull').onclick = toggleFull;
 
-for (const src of [...STAGES, LOSE_IMG]) new Image().src = src;
+for (const src of [...STAGES, LOSE_IMG, ...Object.values(HAND_INFO).map((h) => h.img)]) new Image().src = src;

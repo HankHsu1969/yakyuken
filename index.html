@@ -32,8 +32,8 @@
       </div>
     </div>
 
-    <div id="handYou" class="handcard you"><div class="who">YOU</div><div class="emoji"></div><div class="lbl"></div></div>
-    <div id="handHer" class="handcard her"><div class="who">美咲</div><div class="emoji"></div><div class="lbl"></div></div>
+    <div id="handYou" class="handcard you"><div class="who">你出</div><div class="hand"><img alt=""></div><div class="lbl"></div></div>
+    <div id="handHer" class="handcard her"><div class="who">美咲出</div><div class="hand"><img alt=""></div><div class="lbl"></div></div>
 
     <div id="bubble"></div>
     <div id="chant"></div>
@@ -51,9 +51,9 @@
 
     <!-- 觸控 / 滑鼠出拳 -->
     <div id="touchHands">
-      <button data-g="rock" aria-label="石頭">✊</button>
-      <button data-g="scissors" aria-label="剪刀">✌️</button>
-      <button data-g="paper" aria-label="布">✋</button>
+      <button data-g="rock"><img src="assets/hand_rock.png" alt=""><span>石頭</span></button>
+      <button data-g="scissors"><img src="assets/hand_scissors.png" alt=""><span>剪刀</span></button>
+      <button data-g="paper"><img src="assets/hand_paper.png" alt=""><span>布</span></button>
     </div>
 
     <!-- 紅白幕 -->
@@ -79,16 +79,16 @@
       <div class="setupCard">
         <h2>出拳測試</h2>
         <div class="gestureRow">
-          <div class="g" data-g="rock"><span>✊</span>グー<small>石頭</small></div>
-          <div class="g" data-g="scissors"><span>✌️</span>チョキ<small>剪刀</small></div>
-          <div class="g" data-g="paper"><span>✋</span>パー<small>布</small></div>
+          <div class="g" data-g="rock"><img src="assets/hand_rock.png" alt="">石頭<small>グー</small></div>
+          <div class="g" data-g="scissors"><img src="assets/hand_scissors.png" alt="">剪刀<small>チョキ</small></div>
+          <div class="g" data-g="paper"><img src="assets/hand_paper.png" alt="">布<small>パー</small></div>
         </div>
         <ul class="rules">
           <li>把手舉到鏡頭前，<b>手指朝上</b>，手心或手背對著鏡頭都可以。</li>
           <li>跟著喊「アウト！セーフ！よよいの <b>よいっ！</b>」，在「よいっ！」的瞬間出拳。</li>
           <li>先脫掉美咲 <b>4 件</b>衣服就贏了；你自己輸 4 次就出局。沒出拳的那局不算。</li>
           <li class="kbOnly">辨識不準時也可以按鍵盤 <kbd>1</kbd> 石頭　<kbd>2</kbd> 剪刀　<kbd>3</kbd> 布。</li>
-          <li class="touchOnly">辨識不準時也可以點畫面上的 ✊ ✌️ ✋ 按鈕出拳。</li>
+          <li class="touchOnly">辨識不準時也可以點畫面上的石頭、剪刀、布按鈕出拳。</li>
         </ul>
         <button id="btnStart" class="btn big">▶ 野球拳、開始！</button>
       </div>

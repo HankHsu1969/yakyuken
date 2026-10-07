@@ -3,9 +3,9 @@ const CDN = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14';
 const MODEL = 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task';
 
 export const HAND_INFO = {
-  rock:     { emoji: '✊', jp: 'グー',   zh: '石頭', color: '#ff5a5a' },
-  scissors: { emoji: '✌️', jp: 'チョキ', zh: '剪刀', color: '#ffd23f' },
-  paper:    { emoji: '✋', jp: 'パー',   zh: '布',   color: '#5cf2a0' },
+  rock:     { emoji: '✊', jp: 'グー',   zh: '石頭', color: '#ff5a5a', img: 'assets/hand_rock.png' },
+  scissors: { emoji: '✌️', jp: 'チョキ', zh: '剪刀', color: '#ffd23f', img: 'assets/hand_scissors.png' },
+  paper:    { emoji: '✋', jp: 'パー',   zh: '布',   color: '#5cf2a0', img: 'assets/hand_paper.png' },
 };
 
 const CONNECTIONS = [
@@ -109,6 +109,20 @@ export class HandTracker {
     }
     requestAnimationFrame(this.loop);
   };
+
+  // from 之後第一個連續維持 minMs 以上的手勢（真正「出拳」的那一下）
+  stable(from, minMs) {
+    let g = null;
+    let start = 0;
+    for (const h of this.history) {
+      if (h.t < from) continue;
+      if (h.g !== g) {
+        g = h.g;
+        start = h.t;
+      } else if (g && h.t - start >= minMs) return g;
+    }
+    return null;
+  }
 
   // 取某段時間內最常出現的手勢（以最後 10 個有效影格為主）
   sample(from, to) {

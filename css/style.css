@@ -120,29 +120,39 @@ body { display: grid; place-items: center; }
 }
 
 /* ---------- 出拳卡 ---------- */
+/* 你 = 藍色、美咲 = 紅色，手的圖都朝向畫面中間 */
 .handcard {
-  position: absolute; top: 24%; width: 15rem; z-index: 12;
+  --c: #1f6fe0; --c2: #0b3c8c;
+  position: absolute; top: 17%; width: 19rem; z-index: 12;
   text-align: center; pointer-events: none;
   opacity: 0; transform: scale(.3) rotate(-20deg);
   transition: opacity .2s, transform .35s cubic-bezier(.2, 1.8, .4, 1);
 }
-.handcard.you { left: 6%; }
-.handcard.her { right: 6%; transform: scale(.3) rotate(20deg); }
+.handcard.you { left: 4%; }
+.handcard.her { right: 4%; --c: #e0142a; --c2: #7a0710; transform: scale(.3) rotate(20deg); }
 .handcard.show { opacity: 1; transform: none; }
-.handcard .who { font-family: 'Dela Gothic One', sans-serif; font-size: 2rem; color: var(--cream); }
-.handcard .emoji {
-  margin: .4rem auto; width: 13rem; height: 13rem; border-radius: 50%;
-  display: grid; place-items: center; font-size: 7.5rem; line-height: 1;
-  background: radial-gradient(circle at 35% 30%, #fff, #ffe9a8 55%, #f0a800);
-  border: .5rem solid var(--red); box-shadow: 0 0 0 .3rem var(--gold), 0 .8rem 2rem rgba(0, 0, 0, .5);
+.handcard .who {
+  display: inline-block; font-family: 'Dela Gothic One', sans-serif; font-size: 2.4rem; color: #fff;
+  background: var(--c); border: .25rem solid #fff; border-radius: 99px; padding: .1rem 1.6rem;
+  --o: .15rem; --oc: var(--c2); box-shadow: 0 .4rem 1rem rgba(0, 0, 0, .45);
 }
+.handcard .hand {
+  position: relative; margin: .6rem auto; width: 15.5rem; height: 15.5rem; border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #fff 0 55%, #fff1c4 75%, #ffd36b);
+  border: .6rem solid var(--c); box-shadow: 0 0 0 .35rem var(--gold), 0 .8rem 2rem rgba(0, 0, 0, .5);
+  overflow: hidden;
+}
+.handcard .hand img { position: absolute; inset: 6%; width: 88%; height: 88%; object-fit: contain; }
+.handcard.her .hand img { transform: scaleX(-1); }
 .handcard .lbl {
-  display: inline-block; background: var(--red); border: .2rem solid var(--gold);
-  border-radius: 99px; padding: .2rem 1.2rem; font-weight: 900; font-size: 1.5rem; white-space: nowrap;
+  display: inline-block; background: var(--c); border: .3rem solid var(--gold); color: #fff;
+  border-radius: 1rem; padding: .1rem 1.6rem .2rem; font-weight: 900; font-size: 3.2rem; line-height: 1.2; white-space: nowrap;
+  box-shadow: 0 .4rem 1rem rgba(0, 0, 0, .45);
 }
-.handcard.winner .emoji { animation: glow .6s ease-in-out infinite alternate; }
-.handcard.loser { filter: grayscale(.8) brightness(.7); }
-@keyframes glow { to { box-shadow: 0 0 0 .3rem var(--gold), 0 0 3rem 1rem rgba(255, 220, 60, .95); } }
+.handcard .lbl small { font-size: .5em; margin-left: .4em; opacity: .9; }
+.handcard.winner .hand { animation: glow .6s ease-in-out infinite alternate; }
+.handcard.loser { filter: saturate(.55) brightness(.82); }
+@keyframes glow { to { box-shadow: 0 0 0 .35rem var(--gold), 0 0 3.5rem 1.2rem rgba(255, 220, 60, .95); } }
 
 /* ---------- 對話框 ---------- */
 #bubble {
@@ -216,12 +226,15 @@ body { display: grid; place-items: center; }
 #touchHands { position: absolute; z-index: 13; display: none; gap: 1rem; }
 .mode-game.nocam #touchHands, .mode-game.touch #touchHands { display: flex; }
 #touchHands button {
-  width: 7rem; height: 7rem; border-radius: 50%; cursor: pointer;
-  font-size: 3.8rem; line-height: 1;
-  background: radial-gradient(circle at 35% 30%, #fff, #ffe9a8 55%, #f0a800);
+  width: 8rem; height: 8rem; border-radius: 50%; cursor: pointer; padding: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: radial-gradient(circle at 40% 35%, #fff 0 55%, #fff1c4 75%, #ffd36b);
   border: .4rem solid var(--red); box-shadow: 0 0 0 .25rem var(--gold), 0 .5rem 1.2rem rgba(0, 0, 0, .5);
   transition: transform .08s;
 }
+#touchHands button img { width: 68%; height: 68%; object-fit: contain; pointer-events: none; }
+#touchHands button span { font-weight: 900; font-size: 1.3rem; line-height: 1; color: var(--ink); pointer-events: none; }
+#touchHands button.picked { border-color: #fff; box-shadow: 0 0 0 .3rem var(--gold), 0 0 1.8rem .6rem rgba(255, 220, 60, .9); }
 #touchHands button.on { transform: scale(1.18); box-shadow: 0 0 0 .3rem #fff, 0 0 2rem .8rem rgba(255, 220, 60, .95); }
 .mode-game #touchHands { right: 10rem; bottom: 1.5rem; }
 
@@ -281,7 +294,7 @@ body { display: grid; place-items: center; }
   background: rgba(0, 0, 0, .3); border: .25rem solid rgba(255, 255, 255, .15);
   font-weight: 900; font-size: 1.6rem; transition: .15s;
 }
-.gestureRow .g span { display: block; font-size: 4.4rem; line-height: 1.2; }
+.gestureRow .g img { display: block; width: 7rem; height: 7rem; margin: 0 auto .2rem; object-fit: contain; background: #fff; border-radius: 50%; }
 .gestureRow .g small { display: block; font-size: 1.2rem; opacity: .8; }
 .gestureRow .g.on { background: var(--gold); color: var(--ink); border-color: #fff; transform: scale(1.08); }
 .rules { list-style: none; font-size: 1.45rem; line-height: 1.65; margin: 1rem 0 1.6rem; }
@@ -351,16 +364,17 @@ kbd {
   #hud .items { font-size: 2.3rem; gap: .4rem; }
   #roundLabel { order: 3; flex-basis: 100%; text-align: center; font-size: 1.9rem; margin-top: .2rem; }
 
-  .handcard { top: 30%; width: 12.5rem; }
-  .handcard.you { left: 2%; }
-  .handcard.her { right: 2%; }
-  .handcard .who { font-size: 1.6rem; }
-  .handcard .emoji { width: 10.5rem; height: 10.5rem; font-size: 6rem; }
-  .handcard .lbl { font-size: 1.3rem; padding: .2rem .9rem; }
+  /* 出拳卡放舞台上半部、勝負字放下半部，兩者不重疊 */
+  .handcard { top: calc(var(--scene-h) * .3); width: 16rem; }
+  .handcard.you { left: 1.5%; }
+  .handcard.her { right: 1.5%; }
+  .handcard .who { font-size: 1.9rem; padding: .1rem 1.2rem; }
+  .handcard .hand { width: 14rem; height: 14rem; border-width: .5rem; }
+  .handcard .lbl { font-size: 2.6rem; padding: .1rem 1.2rem .2rem; }
 
   #bubble { left: 55%; top: 16%; max-width: 18rem; font-size: 1.45rem; padding: .8rem 1rem; border-radius: 1.4rem; }
   #chant { top: 40%; font-size: 7.2rem; }
-  #banner { top: 22%; font-size: 10rem; }
+  #banner { top: calc(var(--scene-h) - 13rem); font-size: 9.5rem; }
   #telop {
     bottom: auto; top: calc(var(--scene-h) - 5rem); white-space: normal; text-align: center;
     width: max-content; max-width: 94%; font-size: 1.6rem; padding: .4rem 1.4rem;
@@ -374,12 +388,15 @@ kbd {
     right: 1rem; top: calc(var(--scene-h) + 1.2rem); bottom: 1.2rem;
     flex-direction: column; justify-content: space-evenly; gap: .6rem;
   }
-  .mode-game #touchHands button { width: 9.5rem; height: auto; flex: 0 1 9.5rem; min-height: 0; border-radius: 2rem; font-size: 4.8rem; }
+  .mode-game #touchHands button { width: 9.5rem; height: auto; flex: 0 1 9.5rem; min-height: 0; border-radius: 2rem; }
+  /* 沒開攝影機：舞台放大，按鈕貼近下方方便拇指按 */
+  .mode-game.nocam { --scene-h: 70%; }
   .mode-game.nocam #touchHands {
-    left: 50%; right: auto; transform: translateX(-50%); bottom: auto;
-    top: calc(var(--scene-h) + 6rem); flex-direction: row; gap: 2rem;
+    left: 50%; right: auto; transform: translateX(-50%); top: auto;
+    bottom: calc(3.5rem + env(safe-area-inset-bottom, 0px)); flex-direction: row; gap: 2rem;
   }
-  .mode-game.nocam #touchHands button { width: 11rem; height: 11rem; flex: none; max-height: none; font-size: 6rem; }
+  .mode-game.nocam #touchHands button { width: 11rem; height: 11rem; flex: none; border-radius: 50%; }
+  .mode-game.nocam #touchHands button span { font-size: 1.6rem; }
 
   /* 出拳測試：攝影機在上、說明卡在下 */
   #setupScreen { overflow-y: auto; }
