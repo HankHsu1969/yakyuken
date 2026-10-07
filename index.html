@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="theme-color" content="#5a0710">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>野球拳 YAKYUKEN</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="app" class="mode-title">
+    <div id="scene">
+      <img id="bgA" class="bg show" src="assets/stage0.jpg" alt="">
+      <img id="bgB" class="bg" alt="">
+    </div>
+    <canvas id="fx"></canvas>
+
+    <!-- 上方記分板 -->
+    <div id="hud">
+      <div class="side you">
+        <div class="name">YOU <small>你</small></div>
+        <div class="items" id="youItems"></div>
+      </div>
+      <div id="roundLabel">第 1 回戰</div>
+      <div class="side her">
+        <div class="name">美咲 <small>MISAKI</small></div>
+        <div class="items" id="herItems"></div>
+      </div>
+    </div>
+
+    <div id="handYou" class="handcard you"><div class="who">YOU</div><div class="emoji"></div><div class="lbl"></div></div>
+    <div id="handHer" class="handcard her"><div class="who">美咲</div><div class="emoji"></div><div class="lbl"></div></div>
+
+    <div id="bubble"></div>
+    <div id="chant"></div>
+    <div id="banner"></div>
+    <div id="telop"></div>
+
+    <!-- 攝影機 -->
+    <div id="camPanel">
+      <div class="camBox">
+        <video id="cam" playsinline muted></video>
+        <canvas id="camOverlay"></canvas>
+      </div>
+      <div id="camLabel">等待攝影機…</div>
+    </div>
+
+    <!-- 觸控 / 滑鼠出拳 -->
+    <div id="touchHands">
+      <button data-g="rock" aria-label="石頭">✊</button>
+      <button data-g="scissors" aria-label="剪刀">✌️</button>
+      <button data-g="paper" aria-label="布">✋</button>
+    </div>
+
+    <!-- 紅白幕 -->
+    <div id="curtainL" class="curtain left"></div>
+    <div id="curtainR" class="curtain right"></div>
+    <div id="jajan">ジャジャーン！</div>
+
+    <!-- 標題 -->
+    <div id="titleScreen" class="screen">
+      <picture class="titleArt">
+        <source media="(orientation: portrait)" srcset="assets/title_portrait.jpg">
+        <img src="assets/title.jpg" alt="野球拳 YAKYUKEN">
+      </picture>
+      <div class="titleButtons">
+        <button id="btnCamera" class="btn big">📷 開啟攝影機</button>
+        <button id="btnKeyboard" class="btn small">不用攝影機，用按鈕玩</button>
+        <div id="loadMsg"></div>
+      </div>
+    </div>
+
+    <!-- 準備 / 手勢測試 -->
+    <div id="setupScreen" class="screen">
+      <div class="setupCard">
+        <h2>出拳測試</h2>
+        <div class="gestureRow">
+          <div class="g" data-g="rock"><span>✊</span>グー<small>石頭</small></div>
+          <div class="g" data-g="scissors"><span>✌️</span>チョキ<small>剪刀</small></div>
+          <div class="g" data-g="paper"><span>✋</span>パー<small>布</small></div>
+        </div>
+        <ul class="rules">
+          <li>把手舉到鏡頭前，<b>手指朝上</b>，手心或手背對著鏡頭都可以。</li>
+          <li>跟著喊「アウト！セーフ！よよいの <b>よいっ！</b>」，在「よいっ！」的瞬間出拳。</li>
+          <li>先脫掉美咲 <b>4 件</b>衣服就贏了；你自己輸 4 次就出局。沒出拳的那局不算。</li>
+          <li class="kbOnly">辨識不準時也可以按鍵盤 <kbd>1</kbd> 石頭　<kbd>2</kbd> 剪刀　<kbd>3</kbd> 布。</li>
+          <li class="touchOnly">辨識不準時也可以點畫面上的 ✊ ✌️ ✋ 按鈕出拳。</li>
+        </ul>
+        <button id="btnStart" class="btn big">▶ 野球拳、開始！</button>
+      </div>
+    </div>
+
+    <!-- 結局 -->
+    <div id="endScreen" class="screen">
+      <div class="endTitle" id="endTitle"></div>
+      <div class="endSub" id="endSub"></div>
+      <div class="endButtons">
+        <button id="btnRetry" class="btn big">🔁 再玩一次</button>
+      </div>
+    </div>
+
+    <div id="toolbar">
+      <button id="btnMute" title="靜音 (M)">🔊</button>
+      <button id="btnFull" title="全螢幕 (F)">⛶</button>
+    </div>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

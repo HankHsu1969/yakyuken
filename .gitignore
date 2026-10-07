@@ -1,0 +1,8 @@
+# 本機 HTTPS 自簽憑證（含私鑰）與手機 QR code，每台電腦自己產生
+cert/
+
+# H站產出的原始 PNG（遊戲只用壓縮過的 JPG）
+assets/src/
+
+__pycache__/
+*.pyc

@@ -1,0 +1,406 @@
+:root {
+  --red: #d3121f;
+  --red-deep: #7a0710;
+  --gold: #ffd23f;
+  --gold-deep: #b47a00;
+  --cream: #fff6d6;
+  --ink: #2b0508;
+  --scene-h: 100%;
+}
+
+/*
+  尺寸單位：1rem
+  - 橫式（電腦、手機橫拿）：舞台固定 16:9，1rem = 舞台寬度的 1%
+  - 直式（手機直拿）：舞台填滿整個螢幕，1rem ≈ 螢幕寬度的 2.4%
+*/
+html { font-size: min(1vw, 1.7778vh); }
+@supports (height: 1dvh) { html { font-size: min(1vw, 1.7778dvh); } }
+@media (orientation: portrait) {
+  html { font-size: min(2.4vw, 1.2vh); }
+  @supports (height: 1dvh) { html { font-size: min(2.4vw, 1.2dvh); } }
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  background: #120203;
+  overflow: hidden;
+  color: #fff;
+  font-family: 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body { display: grid; place-items: center; }
+
+#app {
+  position: relative;
+  width: min(100vw, calc(100vh * 16 / 9));
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #300;
+  user-select: none;
+  -webkit-user-select: none;
+}
+@supports (height: 1dvh) { #app { width: min(100vw, calc(100dvh * 16 / 9)); } }
+
+/* 粗外框字（昭和綜藝字幕風） */
+#chant, #banner, #roundLabel, .endTitle, #jajan, .handcard .who {
+  --o: .28rem;
+  --oc: var(--red-deep);
+  text-shadow:
+    var(--o) 0 var(--oc), calc(var(--o) * -1) 0 var(--oc),
+    0 var(--o) var(--oc), 0 calc(var(--o) * -1) var(--oc),
+    var(--o) var(--o) var(--oc), calc(var(--o) * -1) var(--o) var(--oc),
+    var(--o) calc(var(--o) * -1) var(--oc), calc(var(--o) * -1) calc(var(--o) * -1) var(--oc),
+    0 calc(var(--o) * 2.6) 0 rgba(0, 0, 0, .55);
+}
+
+/* ---------- 場景 ---------- */
+#scene { position: absolute; left: 0; right: 0; top: 0; height: var(--scene-h); overflow: hidden; transform-origin: 50% 35%; }
+#scene.pulse { animation: pulse .22s ease-out; }
+#scene.shake { animation: shake .45s ease-in-out; }
+@keyframes pulse { from { transform: scale(1.022); } to { transform: scale(1); } }
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-1.2rem) rotate(-.4deg); }
+  40% { transform: translateX(1rem) rotate(.3deg); }
+  60% { transform: translateX(-.6rem); }
+  80% { transform: translateX(.4rem); }
+}
+
+.bg {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; object-position: var(--focus, 52%) 50%;
+  opacity: 0; transition: opacity .45s ease;
+}
+.bg.show { opacity: 1; }
+
+#fx { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 40; }
+
+/* ---------- HUD ---------- */
+#hud {
+  position: absolute; top: 1.2rem; left: 1.5rem; right: 1.5rem;
+  display: flex; align-items: flex-start; justify-content: space-between;
+  z-index: 10; pointer-events: none;
+  opacity: 0; transform: translateY(-3rem); transition: .4s;
+}
+.mode-game #hud, .mode-end #hud { opacity: 1; transform: none; }
+
+#hud .side {
+  background: linear-gradient(180deg, rgba(120, 6, 16, .88), rgba(60, 0, 6, .88));
+  border: .25rem solid var(--gold);
+  border-radius: 1.2rem;
+  padding: .5rem 1.2rem .7rem;
+  box-shadow: 0 .4rem 1.2rem rgba(0, 0, 0, .45);
+  min-width: 20rem;
+}
+#hud .her { text-align: right; }
+#hud .name { font-family: 'Dela Gothic One', sans-serif; font-size: 1.8rem; color: var(--gold); letter-spacing: .1em; white-space: nowrap; }
+#hud .name small { font-size: 1.1rem; color: var(--cream); margin-left: .4em; }
+#hud .items { display: flex; gap: .6rem; margin-top: .3rem; font-size: 2.5rem; }
+#hud .her .items { justify-content: flex-end; }
+.item { position: relative; display: inline-block; transition: .4s; }
+.item.gone { filter: grayscale(1) brightness(.6); opacity: .35; }
+.item.gone::after {
+  content: '✕'; position: absolute; inset: 0; display: grid; place-items: center;
+  color: #ff3040; font-weight: 900; font-size: 1.1em; text-shadow: 0 0 .3rem #000;
+}
+.item.flyoff { animation: flyoff .9s ease-in forwards; }
+@keyframes flyoff {
+  0% { transform: none; }
+  30% { transform: translateY(-1.5rem) scale(1.6) rotate(-15deg); }
+  100% { transform: translateY(6rem) scale(.6) rotate(200deg); opacity: .35; }
+}
+
+#roundLabel {
+  font-family: 'Dela Gothic One', sans-serif; font-size: 2.6rem; color: var(--gold);
+  margin-top: .4rem; letter-spacing: .08em; white-space: nowrap;
+}
+
+/* ---------- 出拳卡 ---------- */
+.handcard {
+  position: absolute; top: 24%; width: 15rem; z-index: 12;
+  text-align: center; pointer-events: none;
+  opacity: 0; transform: scale(.3) rotate(-20deg);
+  transition: opacity .2s, transform .35s cubic-bezier(.2, 1.8, .4, 1);
+}
+.handcard.you { left: 6%; }
+.handcard.her { right: 6%; transform: scale(.3) rotate(20deg); }
+.handcard.show { opacity: 1; transform: none; }
+.handcard .who { font-family: 'Dela Gothic One', sans-serif; font-size: 2rem; color: var(--cream); }
+.handcard .emoji {
+  margin: .4rem auto; width: 13rem; height: 13rem; border-radius: 50%;
+  display: grid; place-items: center; font-size: 7.5rem; line-height: 1;
+  background: radial-gradient(circle at 35% 30%, #fff, #ffe9a8 55%, #f0a800);
+  border: .5rem solid var(--red); box-shadow: 0 0 0 .3rem var(--gold), 0 .8rem 2rem rgba(0, 0, 0, .5);
+}
+.handcard .lbl {
+  display: inline-block; background: var(--red); border: .2rem solid var(--gold);
+  border-radius: 99px; padding: .2rem 1.2rem; font-weight: 900; font-size: 1.5rem; white-space: nowrap;
+}
+.handcard.winner .emoji { animation: glow .6s ease-in-out infinite alternate; }
+.handcard.loser { filter: grayscale(.8) brightness(.7); }
+@keyframes glow { to { box-shadow: 0 0 0 .3rem var(--gold), 0 0 3rem 1rem rgba(255, 220, 60, .95); } }
+
+/* ---------- 對話框 ---------- */
+#bubble {
+  position: absolute; left: 60%; top: 13%; max-width: 25rem; z-index: 12;
+  background: #fff; color: var(--ink); border: .3rem solid var(--red);
+  border-radius: 2rem; padding: 1rem 1.5rem; font-weight: 900; font-size: 1.7rem; line-height: 1.45;
+  white-space: pre-line; box-shadow: 0 .6rem 1.5rem rgba(0, 0, 0, .4);
+  opacity: 0; transform: scale(.6); transform-origin: 0% 100%;
+  transition: opacity .2s, transform .3s cubic-bezier(.2, 1.6, .4, 1);
+  pointer-events: none;
+}
+#bubble::before {
+  content: ''; position: absolute; left: -1.6rem; bottom: 1.2rem;
+  border: .9rem solid transparent; border-right: 1.4rem solid var(--red);
+}
+#bubble.show { opacity: 1; transform: none; }
+
+/* ---------- 喊聲 ---------- */
+#chant {
+  position: absolute; left: 0; right: 0; top: 56%; z-index: 15;
+  text-align: center; pointer-events: none; white-space: nowrap;
+  font-family: 'Dela Gothic One', sans-serif; font-size: 9.5rem; color: #fff8c8;
+  --o: .45rem; --oc: #c00d18;
+}
+#chant .w { display: inline-block; animation: pop .32s cubic-bezier(.2, 1.7, .4, 1) both; }
+#chant .w.big { color: #fff; font-size: 1.25em; animation: popBig .38s cubic-bezier(.2, 1.9, .4, 1) both; }
+#chant .w.small { font-size: .55em; color: var(--gold); }
+@keyframes pop { from { transform: scale(2.4) rotate(-10deg); opacity: 0; } to { transform: scale(1) rotate(-3deg); opacity: 1; } }
+@keyframes popBig { from { transform: scale(3.2) rotate(12deg); opacity: 0; } to { transform: scale(1) rotate(2deg); opacity: 1; } }
+
+#banner {
+  position: absolute; left: 0; right: 0; top: 33%; z-index: 16; text-align: center; pointer-events: none;
+  font-family: 'Dela Gothic One', sans-serif; font-size: 13rem; opacity: 0; white-space: nowrap;
+  --o: .55rem;
+}
+#banner.show { animation: bannerIn .5s cubic-bezier(.2, 1.7, .4, 1) both; }
+#banner.win { color: #ffe14a; --oc: #b00010; }
+#banner.lose { color: #9fd0ff; --oc: #0b2a6b; }
+#banner.draw { color: #fff; --oc: #5b2a00; }
+@keyframes bannerIn { from { transform: scale(3) rotate(-12deg); opacity: 0; } to { transform: scale(1) rotate(-4deg); opacity: 1; } }
+
+#telop {
+  position: absolute; left: 50%; bottom: 5%; z-index: 32; pointer-events: none;
+  transform: translate(-50%, 2rem); opacity: 0; transition: .35s;
+  background: linear-gradient(180deg, #ffe867, #ffb800); color: var(--ink);
+  border: .3rem solid #fff; outline: .3rem solid var(--red);
+  padding: .5rem 2.5rem; border-radius: .6rem; white-space: nowrap;
+  font-weight: 900; font-size: 2.3rem; box-shadow: 0 .6rem 1.6rem rgba(0, 0, 0, .5);
+}
+#telop.show { opacity: 1; transform: translate(-50%, 0); }
+#telop b { color: var(--red); }
+
+/* ---------- 攝影機 ---------- */
+#camPanel {
+  position: absolute; z-index: 11; display: none;
+  background: rgba(30, 0, 4, .85); border: .3rem solid var(--gold); border-radius: 1.2rem;
+  padding: .5rem; box-shadow: 0 .6rem 1.8rem rgba(0, 0, 0, .55);
+  transition: box-shadow .2s;
+}
+.mode-setup #camPanel, .mode-game #camPanel { display: block; }
+.nocam #camPanel { display: none !important; }
+.mode-game #camPanel { left: 1.5rem; bottom: 1.5rem; width: 21rem; }
+.mode-setup #camPanel { left: 7rem; top: 9rem; width: 38rem; z-index: 21; }
+#camPanel.armed { box-shadow: 0 0 0 .4rem #fff, 0 0 3rem 1rem rgba(255, 210, 60, .9); }
+.camBox { position: relative; width: 100%; aspect-ratio: var(--cam-ar, 4 / 3); border-radius: .8rem; overflow: hidden; background: #000; }
+#cam, #camOverlay { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+#camLabel { text-align: center; font-weight: 900; font-size: 1.5rem; padding-top: .4rem; color: #bbb; white-space: nowrap; }
+.mode-setup #camLabel { font-size: 2.2rem; }
+
+/* ---------- 觸控出拳按鈕 ---------- */
+#touchHands { position: absolute; z-index: 13; display: none; gap: 1rem; }
+.mode-game.nocam #touchHands, .mode-game.touch #touchHands { display: flex; }
+#touchHands button {
+  width: 7rem; height: 7rem; border-radius: 50%; cursor: pointer;
+  font-size: 3.8rem; line-height: 1;
+  background: radial-gradient(circle at 35% 30%, #fff, #ffe9a8 55%, #f0a800);
+  border: .4rem solid var(--red); box-shadow: 0 0 0 .25rem var(--gold), 0 .5rem 1.2rem rgba(0, 0, 0, .5);
+  transition: transform .08s;
+}
+#touchHands button.on { transform: scale(1.18); box-shadow: 0 0 0 .3rem #fff, 0 0 2rem .8rem rgba(255, 220, 60, .95); }
+.mode-game #touchHands { right: 10rem; bottom: 1.5rem; }
+
+/* ---------- 紅白幕 ---------- */
+.curtain {
+  position: absolute; top: 0; bottom: 0; width: 50.5%; z-index: 30;
+  background:
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, .18) 0 .6rem, transparent .6rem 3.4rem, rgba(0, 0, 0, .14) 3.4rem 4rem, transparent 4rem 7rem),
+    repeating-linear-gradient(90deg, #d0101e 0 7rem, #fbf6ef 7rem 14rem);
+  box-shadow: inset 0 -3rem 4rem rgba(0, 0, 0, .25);
+  transition: transform .55s cubic-bezier(.7, 0, .3, 1);
+}
+.curtain::before {
+  content: ''; position: absolute; left: 0; right: 0; top: 0; height: 4rem;
+  background: repeating-linear-gradient(90deg, var(--gold) 0 1rem, var(--gold-deep) 1rem 2rem);
+  box-shadow: 0 .4rem 1rem rgba(0, 0, 0, .4);
+}
+.curtain.left { left: 0; transform: translateX(-101%); }
+.curtain.right { right: 0; transform: translateX(101%); }
+.curtain.closed { transform: none; }
+
+#jajan {
+  position: absolute; left: 0; right: 0; top: 40%; text-align: center; z-index: 31; pointer-events: none;
+  font-family: 'Dela Gothic One', sans-serif; font-size: 8rem; color: var(--gold); opacity: 0; white-space: nowrap;
+  --o: .5rem;
+}
+#jajan.show { animation: bannerIn .45s cubic-bezier(.2, 1.7, .4, 1) both; }
+
+/* ---------- 畫面 ---------- */
+.screen { position: absolute; inset: 0; z-index: 20; display: none; }
+.mode-title #titleScreen, .mode-setup #setupScreen, .mode-end #endScreen { display: block; }
+
+.titleArt, .titleArt img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+#titleScreen .titleButtons {
+  position: absolute; left: 0; right: 0; bottom: 6%;
+  display: flex; flex-direction: column; align-items: center; gap: 1rem;
+}
+#loadMsg {
+  min-height: 2rem; max-width: 90%; text-align: center;
+  font-weight: 900; font-size: 1.6rem; color: #fff; text-shadow: 0 0 .5rem #000, 0 0 1rem #000;
+}
+#loadMsg.err { color: #ffd0d0; }
+
+#setupScreen { background: rgba(25, 0, 3, .62); backdrop-filter: blur(.25rem); -webkit-backdrop-filter: blur(.25rem); }
+.setupCard {
+  position: absolute; right: 6rem; top: 6rem; width: 44rem;
+  background: linear-gradient(180deg, rgba(140, 8, 20, .95), rgba(70, 0, 8, .95));
+  border: .35rem solid var(--gold); border-radius: 1.6rem; padding: 1.8rem 2.2rem;
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, .6);
+}
+.nocam .setupCard { right: 50%; transform: translateX(50%); }
+.setupCard h2 { font-family: 'Dela Gothic One', sans-serif; font-weight: 400; font-size: 3rem; color: var(--gold); text-align: center; }
+.nocam .gestureRow { display: none; }
+.gestureRow { display: flex; justify-content: space-around; margin: 1.2rem 0; }
+.gestureRow .g {
+  width: 11rem; padding: .6rem 0; border-radius: 1rem; text-align: center;
+  background: rgba(0, 0, 0, .3); border: .25rem solid rgba(255, 255, 255, .15);
+  font-weight: 900; font-size: 1.6rem; transition: .15s;
+}
+.gestureRow .g span { display: block; font-size: 4.4rem; line-height: 1.2; }
+.gestureRow .g small { display: block; font-size: 1.2rem; opacity: .8; }
+.gestureRow .g.on { background: var(--gold); color: var(--ink); border-color: #fff; transform: scale(1.08); }
+.rules { list-style: none; font-size: 1.45rem; line-height: 1.65; margin: 1rem 0 1.6rem; }
+.rules li { padding-left: 1.4em; position: relative; margin-bottom: .3rem; }
+.rules li::before { content: '⚾'; position: absolute; left: 0; }
+.rules b { color: var(--gold); }
+.touch .kbOnly, .touchOnly { display: none; }
+.touch .touchOnly { display: block; }
+kbd {
+  display: inline-block; min-width: 1.6em; text-align: center; padding: 0 .3em;
+  background: #fff; color: var(--ink); border-radius: .3em; font-weight: 900; box-shadow: 0 .15em 0 #999;
+}
+.setupCard .btn { display: block; margin: 0 auto; }
+
+#endScreen { background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0) 40%, rgba(0, 0, 0, .55)); }
+.endTitle {
+  position: absolute; left: 0; right: 0; top: 52%; text-align: center; white-space: nowrap;
+  font-family: 'Dela Gothic One', sans-serif; font-size: 11rem; color: var(--gold);
+  --o: .55rem; animation: bannerIn .6s cubic-bezier(.2, 1.7, .4, 1) both;
+}
+.endTitle.lose { color: #9fd0ff; --oc: #0b2a6b; }
+.endSub {
+  position: absolute; left: 0; right: 0; top: 74%; text-align: center; padding: 0 2rem;
+  font-weight: 900; font-size: 2.4rem; text-shadow: 0 0 .6rem #000, 0 .2rem .3rem #000;
+}
+.endButtons { position: absolute; left: 0; right: 0; bottom: 5%; display: flex; justify-content: center; }
+
+.btn {
+  font-family: 'Noto Sans TC', sans-serif; font-weight: 900; cursor: pointer; color: #fff;
+  background: linear-gradient(180deg, #ff3b3b, #b5000c); border: .3rem solid var(--gold);
+  border-radius: 99px; box-shadow: 0 .45rem 0 #5e0007, 0 .8rem 2rem rgba(0, 0, 0, .5);
+  text-shadow: 0 .15rem 0 rgba(0, 0, 0, .4); transition: transform .1s, filter .1s;
+}
+.btn:hover { filter: brightness(1.12); transform: translateY(-.15rem); }
+.btn:active { transform: translateY(.3rem); box-shadow: 0 .15rem 0 #5e0007; }
+.btn:disabled { filter: grayscale(.7) brightness(.8); cursor: wait; }
+.btn.big { font-size: 2.4rem; padding: .9rem 4rem; }
+.btn.small { font-size: 1.4rem; padding: .5rem 2rem; background: linear-gradient(180deg, #5a4a3a, #2c1f14); }
+
+#toolbar { position: absolute; right: 1rem; bottom: 1rem; z-index: 50; display: flex; gap: .6rem; }
+#toolbar button {
+  width: 3.4rem; height: 3.4rem; border-radius: 50%; border: .2rem solid var(--gold);
+  background: rgba(40, 0, 5, .75); color: #fff; font-size: 1.6rem; cursor: pointer;
+}
+.mode-game #toolbar { opacity: .55; }
+.mode-game #toolbar:hover { opacity: 1; }
+.nofs #btnFull { display: none; }
+
+/* ======================================================
+   直式（手機直拿）：上面是舞台，下面是攝影機與出拳按鈕
+   ====================================================== */
+@media (orientation: portrait) {
+  #app {
+    width: 100vw; height: 100vh; aspect-ratio: auto;
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(255, 190, 60, .25), transparent 60%),
+      repeating-linear-gradient(90deg, #5a0710 0 3rem, #4a040c 3rem 6rem);
+  }
+  @supports (height: 1dvh) { #app { width: 100vw; height: 100dvh; } }
+  .mode-game { --scene-h: 58%; }
+  .mode-game #scene { border-bottom: .35rem solid var(--gold); box-shadow: 0 .4rem 1.2rem rgba(0, 0, 0, .6); }
+
+  #hud { top: .8rem; left: .8rem; right: .8rem; flex-wrap: wrap; }
+  #hud .side { min-width: 0; flex: 0 1 48.5%; padding: .4rem .8rem .5rem; border-radius: 1rem; }
+  #hud .name { font-size: 1.5rem; }
+  #hud .name small { font-size: 1rem; }
+  #hud .items { font-size: 2.3rem; gap: .4rem; }
+  #roundLabel { order: 3; flex-basis: 100%; text-align: center; font-size: 1.9rem; margin-top: .2rem; }
+
+  .handcard { top: 30%; width: 12.5rem; }
+  .handcard.you { left: 2%; }
+  .handcard.her { right: 2%; }
+  .handcard .who { font-size: 1.6rem; }
+  .handcard .emoji { width: 10.5rem; height: 10.5rem; font-size: 6rem; }
+  .handcard .lbl { font-size: 1.3rem; padding: .2rem .9rem; }
+
+  #bubble { left: 55%; top: 16%; max-width: 18rem; font-size: 1.45rem; padding: .8rem 1rem; border-radius: 1.4rem; }
+  #chant { top: 40%; font-size: 7.2rem; }
+  #banner { top: 22%; font-size: 10rem; }
+  #telop {
+    bottom: auto; top: calc(var(--scene-h) - 5rem); white-space: normal; text-align: center;
+    width: max-content; max-width: 94%; font-size: 1.6rem; padding: .4rem 1.4rem;
+  }
+  .mode-end #telop { top: auto; bottom: 5%; }
+
+  /* 遊戲中：攝影機在左下、出拳按鈕在右下 */
+  .mode-game #camPanel { left: 1rem; top: calc(var(--scene-h) + 1.2rem); bottom: auto; width: auto; }
+  .mode-game .camBox { width: min(25rem, calc(42vh - 7rem)); aspect-ratio: 1; }
+  .mode-game #touchHands {
+    right: 1rem; top: calc(var(--scene-h) + 1.2rem); bottom: 1.2rem;
+    flex-direction: column; justify-content: space-evenly; gap: .6rem;
+  }
+  .mode-game #touchHands button { width: 9.5rem; height: auto; flex: 0 1 9.5rem; min-height: 0; border-radius: 2rem; font-size: 4.8rem; }
+  .mode-game.nocam #touchHands {
+    left: 50%; right: auto; transform: translateX(-50%); bottom: auto;
+    top: calc(var(--scene-h) + 6rem); flex-direction: row; gap: 2rem;
+  }
+  .mode-game.nocam #touchHands button { width: 11rem; height: 11rem; flex: none; max-height: none; font-size: 6rem; }
+
+  /* 出拳測試：攝影機在上、說明卡在下 */
+  #setupScreen { overflow-y: auto; }
+  .mode-setup #camPanel { left: 50%; top: 2rem; transform: translateX(-50%); width: auto; }
+  .mode-setup .camBox { width: min(26rem, calc(34vh - 4rem)); aspect-ratio: 1; }
+  .setupCard {
+    position: relative; right: auto; top: auto; transform: none;
+    width: 40rem; margin: calc(min(26rem, 34vh - 4rem) + 8rem) auto 2rem; padding: 1.4rem 1.6rem;
+  }
+  .nocam .setupCard { right: auto; transform: none; margin-top: 6rem; }
+  .setupCard h2 { font-size: 2.6rem; }
+  .gestureRow { margin: .8rem 0; }
+  .gestureRow .g { width: 10.5rem; }
+  .rules { font-size: 1.4rem; }
+
+  .endTitle { top: 44%; font-size: 8.5rem; }
+  .endSub { top: 60%; font-size: 1.8rem; }
+
+  .btn.big { font-size: 2.2rem; padding: .9rem 3.5rem; }
+  .btn.small { font-size: 1.5rem; }
+
+  #toolbar { right: .8rem; bottom: auto; top: 6.6rem; flex-direction: column; }
+  .mode-title #toolbar, .mode-setup #toolbar { top: auto; bottom: .8rem; flex-direction: row; }
+}
